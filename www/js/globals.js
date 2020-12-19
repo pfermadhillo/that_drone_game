@@ -21,6 +21,15 @@ LD.Globals = {
         return bounds;
     },
 
+    getCenter: function() {
+        const bounds = LD.Globals.getBounds();
+        const center = {
+            x: bounds.x/2,
+            y: bounds.y/2
+        };
+        return center
+    },
+
 	randomNumber: function (min, max) {  
 	    var min = Math.ceil(min); 
 	    var max = Math.floor(max); 

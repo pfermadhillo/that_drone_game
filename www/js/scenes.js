@@ -275,6 +275,16 @@ LD.Scenes.HUDScene = new Phaser.Class({
             info.setText('Score: ' + this.score);
         }, this);
 
+        this.input.on('gameobjectup', function (pointer, gameObject) {
+            try{
+                gameObject.setFillStyle(Math.random() * 16000000);
+            }catch (e) {
+                console.log("gameobjectup: ", gameObject);
+                console.log("e: ", e);
+            }
+            
+        });
+
         LD.HUD.createSceneHUD();
     }
 
@@ -316,6 +326,11 @@ LD.Scenes.Play = new Phaser.Class({
 
         this.load.image('background', 'img/assets/bg_1280x1024.png');
 
+        for (let i = 0; i < LD.Planets.solarBodies.length; i++) {
+            var planet = LD.Planets.solarBodies[i];
+            this.load.image(planet.img.name, 'img/sprites/'+planet.img.name+'.png')
+        }
+
 
     },
 
@@ -333,6 +348,7 @@ LD.Scenes.Play = new Phaser.Class({
         var background = this.add.sprite(0,0, 'background');
         background.setDisplayOrigin(0);
         background.setScale(LD.Globals.mapMult);
+        background.setDepth(-50);
 
         const bounds = LD.Globals.getBounds();
         this.physics.world.setBounds(0, 0, bounds.x, bounds.y);
@@ -376,6 +392,8 @@ LD.Scenes.Play = new Phaser.Class({
         var start ={x:200,y:300};
 
         var player = LD.Player.createPlayer(start.x, start.y);
+        
+        LD.Planets.createPlanets();
         LD.HUD.createHUD();
 
         // console.log(start,player);
@@ -430,13 +448,19 @@ LD.Scenes.Play = new Phaser.Class({
 
         console.log("bounds pt2:  ",thisGame.cameras.main.getBounds());
 
+        // this.physics.add.collider(LD.Player.rect, LD.Planets.group);
 
+        this.physics.add.overlap(LD.Player.rect, LD.Planets.group, this.collidePlanet, null, this);
+        this.physics.add.overlap(LD.Player.player, LD.Planets.group, this.collidePlanet, null, this);
+
+        console.log("planets.group:  ", LD.Planets.group);
     },
 
     update: function ()
     {
         var thisGame = LD.Globals.game;
         var player = LD.Player.updatePlayer();
+        LD.Planets.updatePlanets();
         LD.HUD.updateHUD();
 
         // console.log("player:  ",player.x, player.y);
@@ -471,8 +495,24 @@ LD.Scenes.Play = new Phaser.Class({
 
         // LD.Blocks.updateUpgradeTextAllBlocks();
 
+
+
     },
 
+
+
+    collidePlanet: function (player, planet)
+    {
+        // if(LD.Player.stats.blue > 0){
+        //     LD.Maps.map.removeTile(tile, -1);
+        //     LD.Maps.fogs = LD.Maps.map.filterTiles(function (tile) {
+        //         return (tile.index === LD.Maps.tiles.fog);
+        //     });
+        //     LD.Player.depleteColor("blue");
+        // }
+        console.log("collide planet:", player, planet);
+        LD.HUD.sidebar.nameText.setText(planet.name)
+    }, 
 
 
     collideFog: function (player, tile)
