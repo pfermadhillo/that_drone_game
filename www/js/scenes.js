@@ -120,7 +120,10 @@ LD.Scenes.Intro2 = new Phaser.Class({
             // LD.Sounds.myPlay('emptySound');
 
             var deadlockTimer = this.time.delayedCall(LD.Globals.deadlockTimeDelay, 
-                                                function(){this.scene.start('play')}, 
+                                                function(){
+                                                    this.scene.start('play');
+                                                    // this.scene.launch('hudscene');
+                                                }, 
                                                 [], this); 
         }, this);
 
@@ -222,6 +225,73 @@ LD.Scenes.WinLose = new Phaser.Class({
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+LD.Scenes.HUDScene = new Phaser.Class({
+
+    Extends: Phaser.Scene,
+
+    initialize:
+
+    function HUDScene ()
+    {
+        Phaser.Scene.call(this, { key: 'hudscene'});
+    },
+
+    // init: function (data)
+    // {
+    //     this.inText = data.text;
+    //     this.inImg = data.img;
+    // },
+
+    // preload: function ()
+    // {
+    //     // this.load.image('teal_border', 'img/backgrounds_teal_border.png');
+    //     this.load.image('show_image', 'img/assets/'+this.inImg+'.png');
+
+    // },
+
+    create: function ()
+    {
+        console.log("HUDScene Scene create()");
+        const thisHUD = this;
+        LD.Globals.HUD = this;
+
+        let info = this.add.text(10, 10, 'Score: 0', { font: '48px Arial', fill: '#000000' });
+
+        let ourGame = this.scene.get('play');
+
+        ourGame.events.on('addScore', function () {
+            this.score += 10;
+            info.setText('Score: ' + this.score);
+        }, this);
+
+        LD.HUD.createSceneHUD();
+    }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 LD.Scenes.Play = new Phaser.Class({
 
     Extends: Phaser.Scene,
@@ -256,6 +326,9 @@ LD.Scenes.Play = new Phaser.Class({
         LD.Globals.game = this;
 
         LD.Globals.gameOver = false;
+
+        // this.scene.add('hudscene', LD.Scenes.HUDScene, true, { x: 0, y: 0 });
+        this.scene.launch('hudscene');
 
         var background = this.add.sprite(0,0, 'background');
         background.setDisplayOrigin(0);
@@ -303,6 +376,7 @@ LD.Scenes.Play = new Phaser.Class({
         var start ={x:200,y:300};
 
         var player = LD.Player.createPlayer(start.x, start.y);
+        LD.HUD.createHUD();
 
         // console.log(start,player);
 
@@ -363,6 +437,7 @@ LD.Scenes.Play = new Phaser.Class({
     {
         var thisGame = LD.Globals.game;
         var player = LD.Player.updatePlayer();
+        LD.HUD.updateHUD();
 
         // console.log("player:  ",player.x, player.y);
 

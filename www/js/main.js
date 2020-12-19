@@ -27,7 +27,8 @@ function main(){
 	    scene: [LD.Scenes.Intro, 
 	    	LD.Scenes.Intro2, 
 	    	LD.Scenes.Play, 
-	    	LD.Scenes.WinLose]
+	    	LD.Scenes.WinLose,
+	    	LD.Scenes.HUDScene]
 	};
 
 	var game = new Phaser.Game(config);

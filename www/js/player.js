@@ -70,20 +70,8 @@ LD.Player = {
         //     LD.Player.statsMaxButton[color].setActive(true).setVisible(true);
         // });
 
-        // const start = LD.Maps.tileSize;    
-        const bounds = LD.Globals.getBounds();
 
-        // console.log("bounds: ", bounds);
 
-        const cam = thisGame.cameras.main;
-
-        cam.setBounds(0, 0,
-                    bounds.x, 
-                    bounds.y);
-        cam.startFollow(LD.Player.player);
-        cam.setViewport(0,200,1000,800);
-
-        // console.log("bounds pt2:  ",thisGame.cameras.main.getBounds());
 
 		return LD.Player.player;
 	},
