@@ -16,6 +16,15 @@ LD.Player = {
         yellow: 0xffff00
     },
 
+    resources: {
+        basics: 10,
+        metals: 100,
+        reactant: 98765439876543987654398765,
+        isotopes: 1000,
+        research: 10,
+        biologic: 1000000
+    },
+
 	refresh: function (){
 
 		LD.Player.vel = {x:0,y:0};

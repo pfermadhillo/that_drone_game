@@ -27,6 +27,15 @@ LD.Planets = {
 
     group: {},
 
+    rotateMult: 10,
+    /* 
+        assumes Earth is radius = 800px
+        14 = 1y/minute
+        840 = 1y/hour
+        20160 = 1y/day
+    */ 
+    lastPlanet: "",
+
 	refresh: function (){
 
 
@@ -59,49 +68,11 @@ LD.Planets = {
             planet.sprite.setName(planet.name);
             planet.sprite.setScale(scale);
             planet.sprite.radius = planet.radius;
+            planet.sprite.radOffset = i;
             // thisGame.game.physics.enable(planet.sprite);
             thisGame.physics.add.existing(planet.sprite);
         }
-        // group.setInteractive();
-        // group.setDepth(-5);
 
-        // var imgSize = LD.Planets.imgSize;
-
-        // LD.Planets.rect = thisGame.add.rectangle(32 + x, 32 + y, 128, 128, 0xffff00);
-        // LD.Planets.rect.setAlpha(0.1);
-        // LD.Planets.rect.setInteractive();
-
-        // LD.Planets.player = thisGame.physics.add.sprite(32 + x, 32 + y, 'player');
-      
-        // LD.Planets.player.setCollideWorldBounds(true);
-        // LD.Planets.player.setSize(imgSize.x*0.9,imgSize.y*0.9).setOffset(imgSize.x*0.05,imgSize.y*0.05);   // actual size 100,150
-
-        // LD.Planets.upgradeButton = thisGame.physics.add.sprite(32 + x, 32 + y, 'upgrade_button');
-        // LD.Planets.upgradeButton.on('pointerup', function (pointer) {
-        //     LD.Blocks.upgradeButtonClicked();
-        //     LD.Planets.upgradeButton.setActive(false).setVisible(false);
-        // });
-        // LD.Planets.upgradeButton.setActive(false);
-        // LD.Planets.upgradeButton.setDepth(10);
-        // LD.Planets.upgradeButton.setInteractive();
-        // LD.Planets.upgradeButton.target = {x:0,y:0};
-
-        // LD.Planets.basicColorArray.forEach(color => {
-        //     var tint = LD.Planets.tints[color];
-        //     LD.Planets.statsMaxButton[color] = thisGame.physics.add.sprite(32 + x, 32 + y, 'upgrade_button');
-        //     LD.Planets.statsMaxButton[color].on('pointerup', function (pointer) {
-        //         LD.Planets.upgradeStatMax(color);
-        //         LD.Planets.statsMaxButton[color].setActive(false).setVisible(false);
-        //     });
-        //     LD.Planets.statsMaxButton[color].setInteractive();
-        //     LD.Planets.statsMaxButton[color].setDepth(1).setTint(tint).setScale(0.5);
-        //     LD.Planets.statsMaxButton[color].setActive(true).setVisible(true);
-        // });
-
-
-
-
-		// return LD.Planets.player;
 	},
 
 
@@ -116,14 +87,16 @@ LD.Planets = {
         LD.Planets.group.getChildren().forEach(function(planet) {
             // console.log(planet);
             if(planet.radius > 0){
-                var angle = thisGame.time.now / (-1 * planet.radius * 10);
-                var x = center.x + planet.radius * Math.cos(angle);
-                var y = center.y + planet.radius * Math.sin(angle);
+                var angle = thisGame.time.now / (-1 * planet.radius * LD.Planets.rotateMult);
+                var rotation = angle * 2;
+                var rotOff = planet.radOffset;
+                var x = center.x + planet.radius * Math.cos(angle+rotOff);
+                var y = center.y + planet.radius * Math.sin(angle+rotOff);
 
-                console.log("planets x y : ",x,y, center, planet.radius, angle);
+                // console.log("planets x y : ",x,y, center, planet.radius, angle);
 
                 planet.setPosition(x,y);
-                planet.setRotation(angle);
+                planet.setRotation(rotation);
             }
             
         });

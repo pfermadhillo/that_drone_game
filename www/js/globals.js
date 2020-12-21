@@ -77,6 +77,22 @@ LD.Globals = {
     calcUpgradeCostForStatsMax: function(level){
     	// LD.Globals.calcUpgradeCost(level, 5, 5);
     	return LD.Globals.simpleUpgradeCalc(level, 10, 10);
+    },
+
+    levelToCost: function(level) {
+        return parseInt(LD.Globals.fib(level));
+    },
+
+    fib: function(n) {
+        let phi = (1 + Math.sqrt(5))/2;
+        let asymp = Math.pow(phi, n) / Math.sqrt(5);
+
+        return Math.round(asymp);
+    },
+
+    toTitleCase: function(s) {
+        if (typeof s !== 'string') return ''
+        return s.charAt(0).toUpperCase() + s.slice(1)
     }
 
 

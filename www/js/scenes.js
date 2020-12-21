@@ -286,6 +286,10 @@ LD.Scenes.HUDScene = new Phaser.Class({
         });
 
         LD.HUD.createSceneHUD();
+    },
+
+    update: function() {
+        LD.HUD.updateSceneHUD();
     }
 
 });
@@ -463,37 +467,6 @@ LD.Scenes.Play = new Phaser.Class({
         LD.Planets.updatePlanets();
         LD.HUD.updateHUD();
 
-        // console.log("player:  ",player.x, player.y);
-
-
-        // // console.log("this.physics.world:  ",this.physics.world);
-        // // console.log("thisGame.physics.world:  ",thisGame.physics.world);
-        // // console.log("LD.Maps.nodes:  ",LD.Maps.nodes);
-        // // console.log("player:  ",player);
-        
-        // // if(LD.Player.rect && LD.Maps.nodes && this.physics.world._elapsed > 1){
-        // //     // for some reason I have to delay this block until the game has one second to load
-        // //     thisGame.physics.world.overlapTiles(LD.Player.rect, LD.Maps.nodes, this.collideNode);
-        // //     thisGame.physics.world.overlapTiles(LD.Player.rect, LD.Maps.fogs, this.collideFog);
-        // //     thisGame.physics.world.overlapTiles(player, LD.Maps.blocks, this.collideBlock);
-        // // }
-
-        // thisGame.physics.world.overlapTiles(LD.Player.rect, LD.Maps.nodes, thisGame.collideNode);
-        // thisGame.physics.world.overlapTiles(LD.Player.rect, LD.Maps.fogs, thisGame.collideFog);
-        // thisGame.physics.world.overlapTiles(player, LD.Maps.blocks, thisGame.collideBlock);
-        
-
-        // LD.Messages.updateStatsText();
-
-        // if(LD.Player.stats.yellow <= 0){
-        //     thisGame.scene.start('winlose', { id: 2, 
-        //                                     text:  LD.Messages.winloseTexts.zeroHP ,
-        //                                     img: "bg"   });
-        // }
-
-        // LD.Blocks.checkForUpgradable(player);
-
-        // LD.Blocks.updateUpgradeTextAllBlocks();
 
 
 
@@ -503,111 +476,17 @@ LD.Scenes.Play = new Phaser.Class({
 
     collidePlanet: function (player, planet)
     {
-        // if(LD.Player.stats.blue > 0){
-        //     LD.Maps.map.removeTile(tile, -1);
-        //     LD.Maps.fogs = LD.Maps.map.filterTiles(function (tile) {
-        //         return (tile.index === LD.Maps.tiles.fog);
-        //     });
-        //     LD.Player.depleteColor("blue");
-        // }
-        console.log("collide planet:", player, planet);
-        LD.HUD.sidebar.nameText.setText(planet.name)
-    }, 
 
-
-    collideFog: function (player, tile)
-    {
-        if(LD.Player.stats.blue > 0){
-            LD.Maps.map.removeTile(tile, -1);
-            LD.Maps.fogs = LD.Maps.map.filterTiles(function (tile) {
-                return (tile.index === LD.Maps.tiles.fog);
-            });
-            LD.Player.depleteColor("blue");
+        // console.log("collide planet:", player, planet);
+        LD.HUD.sidebar.nameText.setText(planet.name);
+        LD.Planets.lastPlanet = planet.name;
+        if(LD.HUD.sidebarState != "planet_"+planet.name){
+            LD.HUD.changeSidebarView("planet_"+planet.name);
         }
-    }, 
-
-    collideNode: function (player, tile)
-    {
-        console.log("collideNode():  ",player,tile);
-        var tileX = tile.x;
-        var tileY = tile.y;
-
-        LD.Maps.map.removeTile(tile, -1);
-        console.log("collideNode(): x,y",tile.x,tile.y);
-
-        LD.Maps.nodes = LD.Maps.nodes.filter(function(t) {
-          return !(t.x == tile.x && t.y == tile.y)
-        });
-
-        LD.Blocks.createNode(tileX,tileY);
-
-    },
-
-
-
-    collideBlock: function (player, tile)
-    {
-        
-
-        var tileName = LD.Maps.tiles;
-        var index = tile.index;
-        var stats = LD.Player.stats;
-        var statsMax = LD.Player.statsMax;
-        var didCollide = false;
-        var block = LD.Blocks.getBlockAtPlayer(player);
-        var upg = 1;
-        if(block && block.upgrade > 1){
-            upg = block.upgrade;
-        }
-        // console.log("collideBlock(): block: ",upg, block);
-
-        if(index === tileName.blue && stats.blue + 2 * upg <= statsMax.blue){
-            didCollide = true;
-            stats.blue += 2 * upg;
-        }else if(index === tileName.yellow && stats.yellow + 2 * upg < statsMax.yellow){
-            didCollide = true;
-            stats.yellow += 2 * upg;
-        }else if(index === tileName.red && stats.red + 2 * upg <= statsMax.red){
-            didCollide = true;
-            stats.red += 2 * upg;
-        }else if(index === tileName.purple 
-             && stats.blue + 1 * upg <= statsMax.blue
-             && stats.red + 1 * upg <= statsMax.red
-             && stats.yellow - 1 * upg > 0
-             ){
-            didCollide = true;
-            stats.blue += 1 * upg;
-            stats.red += 1 * upg;
-            stats.yellow -= 1 * upg;
-        }else if(index === tileName.green 
-             && stats.blue + 1 * upg <= statsMax.blue
-             && stats.yellow + 1 * upg <= statsMax.yellow
-             && stats.red - 1 * upg >= 0
-             ){
-            didCollide = true;
-            stats.yellow += 1 * upg;
-            stats.blue += 1 * upg;
-            stats.red -= 1 * upg;
-        }else if(index === tileName.orange 
-             && stats.yellow + 1 * upg <= statsMax.yellow
-             && stats.red + 1 * upg <= statsMax.red
-             && stats.blue - 1 * upg >= 0
-             ){
-            didCollide = true;
-            stats.red += 1 * upg;
-            stats.yellow += 1 * upg;
-            stats.blue -= 1 * upg;
-        }else{
-
-        }
-
-        if(didCollide){
-            LD.Blocks.removeBlock(tile);
-        }
-        // player.angle++;
-        // LD.Blocks.checkForUpgradable(player);
         
     }
+
+
 
     
 
