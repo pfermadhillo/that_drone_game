@@ -247,18 +247,7 @@ LD.Scenes.HUDScene = new Phaser.Class({
         Phaser.Scene.call(this, { key: 'hudscene'});
     },
 
-    // init: function (data)
-    // {
-    //     this.inText = data.text;
-    //     this.inImg = data.img;
-    // },
 
-    // preload: function ()
-    // {
-    //     // this.load.image('teal_border', 'img/backgrounds_teal_border.png');
-    //     this.load.image('show_image', 'img/assets/'+this.inImg+'.png');
-
-    // },
 
     create: function ()
     {
@@ -275,12 +264,23 @@ LD.Scenes.HUDScene = new Phaser.Class({
             info.setText('Score: ' + this.score);
         }, this);
 
+        this.input.on('gameobjectdown', function (pointer, gameObject) {
+            try{
+                gameObject.setFillStyle(0xFFFFFF);
+            }catch (e) {
+                console.log("gameobjectup , e: ", gameObject , e);
+            }
+        });
+
         this.input.on('gameobjectup', function (pointer, gameObject) {
             try{
-                gameObject.setFillStyle(Math.random() * 16000000);
+                gameObject.setFillStyle(LD.HUD.colorScheme.accent);
+                // gameObject.setFillStyle(Math.random() * 16000000);
+                // let playScene = this.scene.get('play');
+                let thisGame = LD.Globals.game;
+                thisGame.handleButton(gameObject);
             }catch (e) {
-                console.log("gameobjectup: ", gameObject);
-                console.log("e: ", e);
+                console.log("gameobjectup , e: ", gameObject , e);
             }
             
         });
@@ -322,12 +322,7 @@ LD.Scenes.Play = new Phaser.Class({
     preload: function ()
     {
 
-        // this.load.image('tiles', 'img/assets/quickie_tilemap.png');
-        // this.load.tilemapTiledJSON('map', 'json/simple-map.json');
-        // // this.load.image('triangle', 'img/sprites/triangle.png');
         this.load.image('player', 'img/sprites/player_t25x25.png');
-        // this.load.image('upgrade_button', 'img/sprites/upgrade_button.png');
-
         this.load.image('background', 'img/assets/bg_1280x1024.png');
 
         for (let i = 0; i < LD.Planets.solarBodies.length; i++) {
@@ -358,59 +353,13 @@ LD.Scenes.Play = new Phaser.Class({
         this.physics.world.setBounds(0, 0, bounds.x, bounds.y);
 
 
-        // var map = LD.Maps.create(thisGame);
-        // var ts = LD.Maps.tileSize;
-        // var tn = LD.Maps.tileNum;  
-        
-        // tileset = map.addTilesetImage('tiles');
-        // var tileName = LD.Maps.tiles;
-        // // layer = map.createDynamicLayer('Level1', tileset);
-        // LD.Maps.layer = map.createBlankDynamicLayer('layer', tileset);
-        // var layer = LD.Maps.layer;
-        // layer.setScale(LD.Maps.tileScale.x,LD.Maps.tileScale.y);
-        // layer.fill(tileName.wall, 0, 0, tn.x, tn.y); // Body of the water
-
-        // var bounds = LD.Maps.getBounds();
-        // this.physics.world.setBounds(
-        //     -ts.x , 
-        //     -ts.y , 
-        //     bounds.x ,
-        //     bounds.y , 
-        //     true, true, true, true);
-
-
-        // map.setCollision([ tileName.fog, tileName.wall, tileName.node, 20, 48 ]);
-
-        // var i,j;
-        // var startTile = LD.Maps.findStartTiles();
-
-        // LD.Blocks.createBlocks();
-        // LD.Blocks.createNode(startTile.x,startTile.y, true);
-
-        // var start ={};
-        // var start ={};
-        // start.x = map.tileToWorldX(startTile.x);
-        // start.y = map.tileToWorldY(startTile.y);
-
-
         var start ={x:200,y:300};
 
         var player = LD.Player.createPlayer(start.x, start.y);
         
         LD.Planets.createPlanets();
         LD.HUD.createHUD();
-
-        // console.log(start,player);
-
-
-
-        // LD.Maps.fogLayer = map.createBlankDynamicLayer('fogLayer', tileset);
-        // var fogLayer = LD.Maps.fogLayer;
-        // // fogLayer.setScale(2);
-        // var fn = {x:2*tn.x, y:2*tn.y};
-        // fogLayer.fill(tileName.fog, 1, 1, fn.x, fn.y); // Body of the water
-        // // fogLayer.setZ(1);
-        // console.log(tn,fn,fogLayer, layer);
+        LD.Drones.createDrones();
 
 
         LD.Globals.cursors = this.input.keyboard.createCursorKeys();
@@ -429,27 +378,6 @@ LD.Scenes.Play = new Phaser.Class({
             }
         );
 
-
-        // LD.Messages.createStatsText();
-
-
-        // this.physics.add.collider(player, layer);
-        // this.physics.add.collider(player, fogLayer);
-
-        // this.physics.add.existing(LD.Player.rect);
-        // // this.physics.add.collider(LD.Player.rect, fogLayer);
-
-        // LD.Maps.fogs = map.filterTiles(function (tile) {
-        //     return (tile.index === tileName.fog);
-        // });
-
-        // this.physics.world.overlapTiles(LD.Player.rect, fogLayer, this.collideFog, null, this);
-        
-        // console.log("fogs:",LD.Maps.fogs);
-        // console.log("map:",map);
-        // console.log("layer:",layer);
-        // console.log("fogLayer:",fogLayer);
-
         console.log("bounds pt2:  ",thisGame.cameras.main.getBounds());
 
         // this.physics.add.collider(LD.Player.rect, LD.Planets.group);
@@ -466,6 +394,7 @@ LD.Scenes.Play = new Phaser.Class({
         var player = LD.Player.updatePlayer();
         LD.Planets.updatePlanets();
         LD.HUD.updateHUD();
+        LD.Drones.updateDrones();
 
 
 
@@ -484,6 +413,19 @@ LD.Scenes.Play = new Phaser.Class({
             LD.HUD.changeSidebarView("planet_"+planet.name);
         }
         
+    },
+
+
+    handleButton: function(gameObject) {
+        const fullName = gameObject.name;
+        const planet = fullName.substring(9);
+        if(fullName.substring(0,9) == "addDrone_"){
+            if(LD.Drones.checkCostOfDrone()){
+                LD.Drones.addDrone(planet);
+            }else{
+                gameObject.setFillStyle(0xFF0000);
+            }
+        }
     }
 
 

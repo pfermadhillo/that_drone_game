@@ -33,6 +33,7 @@ LD.HUD = {
     buttonFontSize: '32px',
 
     fontColor: "#E1F485",
+    fontGreyedOut: "#333333",
 
     resFontColors: {
         basics: "#CCAAAA",
@@ -53,6 +54,7 @@ LD.HUD = {
     resTextGapMult: 2.5,
 
     sidebarState: "",
+    sidebarCurrentView : [],
 
 	refresh: function (){
 
@@ -116,6 +118,7 @@ LD.HUD = {
 
         for (let i = 0; i < LD.HUD.topButtons.length; i++) {
             var button = LD.HUD.topButtons[i];
+            const name = button.text;
 
             var x = pad + (i * (size.x + pad)) + size.x/2 ;
             console.log("topButtons[]: x:  ", x , i);
@@ -126,22 +129,20 @@ LD.HUD = {
                         y, 
                         size.x, 
                         size.y, 
-                        LD.HUD.colorScheme.accent);
-            button.rect.setInteractive();
-            button.rect.setStrokeStyle(LD.HUD.trimSize, LD.HUD.colorScheme.trim);
-            button.rect.setScrollFactor(0);
-
-            // button.rect.on('pointerup', function (pointer) {
-            //     button.rect.fillColor(Math.random() * 16000000);
-            // });
+                        LD.HUD.colorScheme.accent)
+            .setInteractive()
+            .setStrokeStyle(LD.HUD.trimSize, LD.HUD.colorScheme.trim)
+            .setScrollFactor(0)
+            .setName(name);
 
             button.text = thisHUD.add.text(
                         x + marg - size.x/2, 
                         y + marg - size.y/2, 
                         button.text, 
-                        { fontSize: LD.HUD.buttonFontSize, fill: LD.HUD.fontColor });
-            // button.text.setStroke('#000', 1);
-            button.text.setScrollFactor(0);
+                        { fontSize: LD.HUD.buttonFontSize, fill: LD.HUD.fontColor })
+            .setScrollFactor(0)
+            .setName(name);
+
 
         }
 
@@ -185,7 +186,17 @@ LD.HUD = {
     },
 
     updateSceneHUD: function() {
-
+        for (let i = 0; i < LD.Drones.resTypesArray.length; i++) {
+            const res = LD.Drones.resTypesArray[i];
+            var textBox = LD.HUD.sidebar[res+"_msg"];
+            // console.log("updateSceneHUD: ", textBox);
+            var theRes = LD.Player.resources[res];
+            var theResStr = LD.HUD.convertIntToFactors(theRes);
+            if(textBox.text != theResStr){
+                console.log("updateSceneHUD: ", textBox.text, theResStr );
+                textBox.setText(theResStr);
+            }
+        }
     },
 
     convertIntToFactors: function   (theInt) {
@@ -225,7 +236,8 @@ LD.HUD = {
 
         var theView = {};
         var button = {};
-        var droneButtons = [];
+        LD.HUD.emptySidebarCurrentView();
+
 
         var x = LD.HUD.sideDivideX + size.x;
         // console.log("topButtons[]: x:  ", x , i);
@@ -239,13 +251,24 @@ LD.HUD = {
                     LD.HUD.colorScheme.accent)
         .setInteractive()
         .setStrokeStyle(LD.HUD.trimSize, LD.HUD.colorScheme.trim)
-        .setScrollFactor(0);
+        .setScrollFactor(0)
+        .setName("addDrone_"+name);
+
+        var addDroneFontColor = LD.HUD.fontColor;
+        if(!LD.Drones.checkCostOfDrone()){
+            addDroneFontColor = LD.HUD.fontGreyedOut;
+        }
 
         button.text = thisHUD.add.text(
                     x + marg - size.x/2, 
                     y + marg - size.y/2, 
                     "Add Drone", 
-                    { fontSize: LD.HUD.buttonFontSize, fill: LD.HUD.fontColor }).setScrollFactor(0);
+                    { fontSize: LD.HUD.buttonFontSize, fill: addDroneFontColor })
+        .setScrollFactor(0)
+        .setName("addDrone_"+name);
+
+        LD.HUD.sidebarCurrentView.push(button);
+
 
         console.log("LD.Drones.drones:  ",LD.Drones.drones, name);
         if(LD.Drones.drones && LD.Drones.drones[name] && LD.Drones.drones[name].length){
@@ -269,7 +292,7 @@ LD.HUD = {
                         newY + marg - size.y/2, 
                         drone.name, 
                         { fontSize: LD.HUD.buttonFontSize, fill: LD.HUD.fontColor }).setScrollFactor(0);
-                droneButtons.push(btn);
+                LD.HUD.sidebarCurrentView.push(btn);
             }
         }
         
@@ -278,6 +301,19 @@ LD.HUD = {
     getLevelFromMaxStatVal(maxStat){
         // 100 -> 1, 110 -> 2, 220 -> 13
         return (maxStat/10)-9;
+    },
+
+    emptySidebarCurrentView: function() {
+        console.log("emptySidebarCurrentView():  ",LD.HUD.sidebarCurrentView);
+        LD.HUD.sidebarCurrentView.forEach(function(obj) {
+            try{
+                if(obj.rect){obj.rect.destroy();}
+                if(obj.text){obj.text.destroy();}
+            }catch(e){
+                console.log("e: ",e);
+            }          
+        });
+        LD.HUD.sidebarCurrentView = [];
     }
 
 	

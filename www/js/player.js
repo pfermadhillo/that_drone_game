@@ -17,11 +17,11 @@ LD.Player = {
     },
 
     resources: {
-        basics: 10,
-        metals: 100,
+        basics: 1000,
+        metals: 1000,
         reactant: 98765439876543987654398765,
         isotopes: 1000,
-        research: 10,
+        research: 1000,
         biologic: 1000000
     },
 

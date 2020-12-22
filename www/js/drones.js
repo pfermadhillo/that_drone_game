@@ -62,6 +62,7 @@ LD.Drones = {
 
     chassisArray: [
         {
+            name: "tester",
             stats: {
                 damage: 1,
                 collection: 1,
@@ -73,6 +74,8 @@ LD.Drones = {
         }
     ],
 
+    activeDrone: {},
+
 	refresh: function (){
 
 
@@ -82,7 +85,7 @@ LD.Drones = {
 	createDrones: function(x=0,y=0){
 		thisGame = LD.Globals.game;
 		LD.Drones.refresh();
-
+        LD.Drones.activeDrone = LD.Drones.chassisArray[0];
 	},
 
 
@@ -95,11 +98,11 @@ LD.Drones = {
 
     calcDroneCost: function(stats) {
         var tallyObj = {};
-        LD.Drones.resTypesArray.statTypesArray.forEach(function(stat) {
+        LD.Drones.statTypesArray.forEach(function(stat) {
             if(LD.Drones.statCosts && LD.Drones.statCosts[stat]){
                 statCostObj = LD.Drones.statCosts[stat];
                 costFib = LD.Globals.levelToCost(stats[stat]);
-                LD.Drones.resTypesArray.resTypesArray.forEach(res => {
+                LD.Drones.resTypesArray.forEach(res => {
                     tallyObj[res] = statCostObj[res] * costFib;
                 });
             }
@@ -127,6 +130,50 @@ LD.Drones = {
     getLevelFromMaxStatVal(maxStat){
         // 100 -> 1, 110 -> 2, 220 -> 13
         return (maxStat/10)-9;
+    },
+
+    addDrone: function(planet) {
+        const drone = LD.Drones.activeDrone;
+        console.log("in addDrone() , planet: ", planet);
+        var arr = LD.Drones.drones[planet];
+        if(Array.isArray(arr)){
+            arr.push(drone);
+        }else{
+            LD.Drones.drones[planet] = [];
+            LD.Drones.drones[planet].push(drone);
+        }
+        LD.Drones.payForDrone(drone);
+    },
+
+    checkCostOfDrone: function() {
+        const drone = LD.Drones.activeDrone;
+        console.log("checkCostOfDrone: ",drone);
+        const tallyObj = LD.Drones.calcDroneCost(drone.stats);
+        const resources = LD.Player.resources;
+        const resTypesArray = LD.Drones.resTypesArray;
+
+        var canAfford = true;
+        for ( var i = 0; i < resTypesArray.length; i++ ) {
+            var res = resTypesArray[i];
+            if(tallyObj[res] && tallyObj[res] > resources[res]){
+                canAfford = false;
+            }
+        }
+        return canAfford;
+    },
+
+    payForDrone: function (drone) {
+        const tallyObj = LD.Drones.calcDroneCost(drone.stats);
+        const resTypesArray = LD.Drones.resTypesArray;
+        var resources = LD.Player.resources;
+        for ( var i = 0; i < resTypesArray.length; i++ ) {
+            var res = resTypesArray[i];
+            if(tallyObj[res]){
+                resources[res] -= tallyObj[res];
+            }
+        }
+        console.log("payForDrone():  ",tallyObj, resources);
+
     }
 
 	
